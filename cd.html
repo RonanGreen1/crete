@@ -2,179 +2,93 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Holiday Countdown to Crete</title>
-  <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;600&display=swap" rel="stylesheet">
   <style>
     * { box-sizing: border-box; margin: 0; padding: 0; }
-    body, html {
-      height: 100%;
-      font-family: 'Montserrat', sans-serif;
-      overflow: hidden;
+    html, body { height: 100%; font-family: sans-serif; }
+    body { background: url('https://source.unsplash.com/800x600/?crete,beach') center/cover no-repeat; position: relative; }
+    /* Responsive fallback: hide fancy decorations on narrow screens */
+    @media (max-width: 600px) {
+      .decorative { display: none; }
     }
-    body {
-      background: linear-gradient(to bottom, #87ceeb 60%, #f4a460 60%);
-      position: relative;
-    }
-    /* Sun */
-    .sun {
-      position: absolute;
-      top: 8%; left: 8%;
-      width: 12vw; height: 12vw;
-      max-width: 100px; max-height: 100px;
-      background: radial-gradient(circle at center, #ffeb3b, #f9a825);
-      border-radius: 50%;
-      box-shadow: 0 0 40px #ffeb3b;
-      animation: spinSun 20s linear infinite;
-      z-index: 1;
-    }
-    @keyframes spinSun { to { transform: rotate(360deg); } }
-    /* Clouds */
-    .cloud {
-      width: 20vw; height: 6vw;
-      max-width: 120px; max-height: 40px;
-      background: #fff;
-      border-radius: 50px;
-      box-shadow: 30px 0 0 #fff, 60px 0 0 #fff, 90px 0 0 #fff;
-      position: absolute;
-      z-index: 1;
-      opacity: 0.8;
-      animation: moveClouds linear infinite;
-    }
-    .cloud:nth-child(1) { top: 12%; left: -25vw; animation-duration: 90s; }
-    .cloud:nth-child(2) { top: 22%; left: -30vw; animation-duration: 120s; }
-    .cloud:nth-child(3) { top: 32%; left: -28vw; animation-duration: 75s; }
-    @keyframes moveClouds { to { transform: translateX(150vw); } }
-    /* Sand at bottom */
-    .sand {
-      position: absolute;
-      bottom: 0;
-      width: 100%;
-      height: 35vh;
-      background: url('https://source.unsplash.com/800x600/?sand,beach') no-repeat center bottom/cover;
-      z-index: 0;
-    }
-    /* Beachball canvas */
-    canvas#bbcanvas {
-      position: absolute;
-      top: 0; left: 0;
-      width: 100%; height: 100%;
-      z-index: 3;
-      touch-action: none;
-    }
-    /* Countdown container */
-    .container {
-      position: relative;
-      z-index: 4;
-      height: 100%;
-      width: 100%;
-      display: flex;
-      flex-direction: column;
-      justify-content: center;
-      align-items: center;
-      text-align: center;
-      padding: 5vh 5vw;
-      animation: fadeIn 1.5s ease-in;
+    /* Fullscreen canvas for beach ball */
+    canvas { position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; z-index: 1; }
+    /* Centered countdown */
+    .countdown-container {
+      position: relative; z-index: 2;
+      display: flex; flex-direction: column; align-items: center;
+      justify-content: center; height: 100vh; text-align: center;
+      background: rgba(0,0,0,0.4);
       color: #fff;
+      padding: 20px;
     }
-    h1 {
-      font-size: calc(1.5rem + 1.5vw);
-      margin-bottom: 5vh;
-      text-transform: uppercase;
-      letter-spacing: 2px;
-      text-shadow: 2px 2px 4px rgba(0,0,0,0.6);
-    }
-    .countdown {
-      display: flex;
-      flex-wrap: wrap;
-      justify-content: center;
-      gap: 4vw;
-    }
-    .card {
-      background: rgba(255,255,255,0.15);
-      border-radius: 10px;
-      padding: 2vh 2vw;
-      min-width: 20vw;
-      max-width: 100px;
-      animation: pop 0.8s ease-out;
-    }
-    .number {
-      font-size: calc(1.5rem + 1vw);
-      font-weight: 600;
-    }
-    .label {
-      font-size: 0.7rem;
-      margin-top: 0.5vh;
-      opacity: 0.8;
-    }
-    @keyframes pop { 60% { transform: scale(1.05); } }
-    @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+    .countdown-container h1 { font-size: 2rem; margin-bottom: 1rem; }
+    .time { font-size: 1.5rem; margin: 0.5rem 0; }
   </style>
 </head>
 <body>
-  <div class="sun"></div>
-  <div class="cloud"></div><div class="cloud"></div><div class="cloud"></div>
-  <div class="sand"></div>
+  <!-- Decorative elements hidden on mobile -->
+  <div class="decorative">
+    <!-- Sun, clouds, palms etc. could go here if desired -->
+  </div>
   <canvas id="bbcanvas"></canvas>
-  <div class="container">
-    <h1>Holiday Countdown to Crete 🌞🌴</h1>
-    <div id="countdown" class="countdown">
-      <div class="card"><span class="number" id="days">0</span><span class="label">Days</span></div>
-      <div class="card"><span class="number" id="hours">0</span><span class="label">Hours</span></div>
-      <div class="card"><span class="number" id="minutes">0</span><span class="label">Minutes</span></div>
-      <div class="card"><span class="number" id="seconds">0</span><span class="label">Seconds</span></div>
-    </div>
+  <div class="countdown-container">
+    <h1>Countdown to Crete</h1>
+    <div class="time" id="days">0 Days</div>
+    <div class="time" id="hours">0 Hours</div>
+    <div class="time" id="minutes">0 Minutes</div>
+    <div class="time" id="seconds">0 Seconds</div>
   </div>
   <script>
-    // Countdown logic
-    const target = new Date("2025-05-19T14:30:00");
-    function updateCountdown() {
+    // Simple countdown
+    const target = new Date('2025-05-19T14:30:00');
+    function update() {
       const now = new Date();
       const diff = target - now;
       if (diff <= 0) {
-        document.querySelector('.container').innerHTML = '<h1>Enjoy Crete! 🎉</h1>';
-        clearInterval(countInterval);
+        document.querySelector('.countdown-container').innerHTML = '<h1>Enjoy Crete!</h1>';
+        clearInterval(timer);
         return;
       }
-      const d = Math.floor(diff / (1000*60*60*24));
-      const h = Math.floor((diff / (1000*60*60)) % 24);
-      const m = Math.floor((diff / (1000*60)) % 60);
-      const s = Math.floor((diff / 1000) % 60);
-      document.getElementById('days').textContent = d;
-      document.getElementById('hours').textContent = h;
-      document.getElementById('minutes').textContent = m;
-      document.getElementById('seconds').textContent = s;
+      const d=Math.floor(diff/86400000);
+      const h=Math.floor(diff%86400000/3600000);
+      const m=Math.floor(diff%3600000/60000);
+      const s=Math.floor(diff%60000/1000);
+      document.getElementById('days').textContent = d + ' Days';
+      document.getElementById('hours').textContent = h + ' Hours';
+      document.getElementById('minutes').textContent = m + ' Minutes';
+      document.getElementById('seconds').textContent = s + ' Seconds';
     }
-    updateCountdown();
-    const countInterval = setInterval(updateCountdown, 1000);
-    // Beachball
+    const timer = setInterval(update, 1000);
+    update();
+
+    // Beach ball canvas
     const canvas = document.getElementById('bbcanvas');
     const ctx = canvas.getContext('2d');
     let W, H;
-    function resize() { W = canvas.width = window.innerWidth; H = canvas.height = window.innerHeight; }
-    window.addEventListener('resize', resize); resize();
-    const ball = { x: W/2, y: H/2, vx: 4, vy: 2, radius: H*0.04 };
-    const gravity = H*0.001;
-    const damping = 0.8;
-    function drawBall() {
-      const colors = ['#F94144','#F9C74F','#90BE6D','#577590'];
-      const seg = 2*Math.PI/colors.length;
-      for (let i=0;i<colors.length;i++){ ctx.beginPath(); ctx.moveTo(ball.x,ball.y);
-        ctx.arc(ball.x,ball.y,ball.radius,i*seg,(i+1)*seg); ctx.closePath(); ctx.fillStyle=colors[i]; ctx.fill(); }
-      ctx.beginPath(); ctx.arc(ball.x-ball.radius/3,ball.y-ball.radius/3,ball.radius/5,0,2*Math.PI);
-      ctx.fillStyle='rgba(255,255,255,0.7)'; ctx.fill();
+    function resize() { W=canvas.width=window.innerWidth; H=canvas.height=window.innerHeight; }
+    window.addEventListener('resize', resize);
+    resize();
+    const ball={x:W/2,y:H/2,vx:3,vy:2,r:Math.min(W,H)*0.06};
+    const g=0.2, dmp=0.8;
+    function draw(){
+      ctx.clearRect(0,0,W,H);
+      // ball
+      ctx.beginPath(); ctx.arc(ball.x,ball.y,ball.r,0,2*Math.PI);
+      ctx.fillStyle='#ffdd99'; ctx.fill();
     }
-    function updateBall() {
-      ball.vy+=gravity; ball.x+=ball.vx; ball.y+=ball.vy;
-      if(ball.x+ball.radius>W){ball.x=W-ball.radius;ball.vx*=-damping;}
-      if(ball.x-ball.radius<0){ball.x=ball.radius;ball.vx*=-damping;}
-      if(ball.y+ball.radius>H){ball.y=H-ball.radius;ball.vy*=-damping;}
-      if(ball.y-ball.radius<0){ball.y=ball.radius;ball.vy*=-damping;}
+    function step(){
+      ball.vy+=g; ball.x+=ball.vx; ball.y+=ball.vy;
+      if(ball.x+ball.r>W||ball.x-ball.r<0) ball.vx*=-dmp;
+      if(ball.y+ball.r>H||ball.y-ball.r<0) ball.vy*=-dmp;
     }
-    function animate(){ctx.clearRect(0,0,W,H);updateBall();drawBall();requestAnimationFrame(animate);} animate();
-    canvas.addEventListener('pointerdown', e=>{ const rect=canvas.getBoundingClientRect();
-      const mx=e.clientX-rect.left,my=e.clientY-rect.top,dx=mx-ball.x,dy=my-ball.y;
-      if(Math.hypot(dx,dy)<ball.radius){ ball.vx=-dx*0.15;ball.vy=-dy*0.15;} });
+    function anim(){ step(); draw(); requestAnimationFrame(anim); }
+    anim();
+    canvas.addEventListener('touchstart',e=>{
+      const t=e.touches[0]; const dx=t.clientX-ball.x, dy=t.clientY-ball.y;
+      if(Math.hypot(dx,dy)<ball.r){ ball.vx=-dx*0.1; ball.vy=-dy*0.1; }
+    });
   </script>
 </body>
 </html>
