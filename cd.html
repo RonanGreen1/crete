@@ -8,8 +8,9 @@
     * { box-sizing: border-box; margin: 0; padding: 0; }
     html, body { height: 100%; font-family: sans-serif; }
     body { 
-      background: url('https://source.unsplash.com/800x600/?crete,beach') center/cover no-repeat;
+      background: #87ceeb; /* sky blue */
       position: relative;
+      overflow: hidden;
     }
     /* Garland of emojis */
     .garland {
@@ -26,8 +27,26 @@
       0%,100% { transform: translateY(0); }
       50% { transform: translateY(8px); }
     }
-    /* Fullscreen canvas for beach ball */
-    canvas { position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; z-index: 1; }
+    /* Falling decorations */
+    .falling {
+      position: absolute;
+      top: 0; left: 0;
+      width: 100%; height: 100%;
+      pointer-events: none;
+      overflow: hidden;
+      z-index: 1;
+    }
+    .falling span {
+      position: absolute;
+      top: -2rem;
+      font-size: 1.5rem;
+      animation-name: fall;
+      animation-timing-function: linear;
+      animation-iteration-count: infinite;
+    }
+    @keyframes fall {
+      to { transform: translateY(110vh); }
+    }
     /* Centered countdown */
     .countdown-container {
       position: relative;
@@ -38,8 +57,8 @@
       justify-content: center;
       height: 100vh;
       text-align: center;
-      background: rgba(0,0,0,0.45);
-      color: #fff;
+      background: rgba(255,255,255,0.2);
+      color: #004080;
       padding: 20px;
     }
     .countdown-container h1 {
@@ -58,7 +77,7 @@
 </head>
 <body>
   <div class="garland">🎈 🎉 🍹 🌺 🏖️ 🌊 🐚 🍦</div>
-  <canvas id="bbcanvas"></canvas>
+  <div class="falling" id="falling"></div>
   <div class="countdown-container">
     <h1>Holiday Countdown to Crete</h1>
     <div class="emojis">⛱️ 🏝️ 🌞</div>
@@ -90,48 +109,23 @@
     const timer = setInterval(updateCountdown, 1000);
     updateCountdown();
 
-    // Beach ball canvas
-    const canvas = document.getElementById('bbcanvas');
-    const ctx = canvas.getContext('2d');
-    let W, H;
-    function resizeCanvas() {
-      W = canvas.width = window.innerWidth;
-      H = canvas.height = window.innerHeight;
+    // Falling decor generation
+    const emojis = ['🌴','🌺','🍹','🐚','🏖️','🍦','🌞','🏝️'];
+    const container = document.getElementById('falling');
+    function createFalling() {
+      const span = document.createElement('span');
+      span.textContent = emojis[Math.floor(Math.random() * emojis.length)];
+      const size = Math.random() * 1 + 1; // font scale
+      span.style.fontSize = `${size}rem`;
+      span.style.left = `${Math.random() * 100}vw`;
+      span.style.animationDuration = `${Math.random() * 5 + 5}s`;
+      span.style.opacity = `${Math.random() * 0.7 + 0.3}`;
+      container.appendChild(span);
+      // remove after animation
+      setTimeout(() => container.removeChild(span), (parseFloat(span.style.animationDuration) * 1000));
     }
-    window.addEventListener('resize', resizeCanvas);
-    resizeCanvas();
-    const ball = { x: W/2, y: H/2, vx: 3, vy: 2, r: Math.min(W, H) * 0.06 };
-    const gravity = 0.2, damping = 0.8;
-    function drawBall() {
-      ctx.clearRect(0, 0, W, H);
-      // draw ball
-      ctx.beginPath();
-      ctx.arc(ball.x, ball.y, ball.r, 0, Math.PI*2);
-      ctx.fillStyle = '#ffdd99';
-      ctx.fill();
-    }
-    function updateBall() {
-      ball.vy += gravity;
-      ball.x += ball.vx;
-      ball.y += ball.vy;
-      if (ball.x + ball.r > W || ball.x - ball.r < 0) ball.vx *= -damping;
-      if (ball.y + ball.r > H || ball.y - ball.r < 0) ball.vy *= -damping;
-    }
-    function animate() {
-      updateBall();
-      drawBall();
-      requestAnimationFrame(animate);
-    }
-    animate();
-    canvas.addEventListener('touchstart', e => {
-      const t = e.touches[0];
-      const dx = t.clientX - ball.x;
-      const dy = t.clientY - ball.y;
-      if (Math.hypot(dx, dy) < ball.r) {
-        ball.vx = -dx * 0.1;
-        ball.vy = -dy * 0.1;
-      }
-    });
+    // generate falling emojis periodically
+    setInterval(createFalling, 300);
   </script>
 </body>
 </html>
