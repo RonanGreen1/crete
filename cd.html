@@ -1,93 +1,136 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <meta charset="UTF-8"> 
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Holiday Countdown to Crete</title>
   <style>
     * { box-sizing: border-box; margin: 0; padding: 0; }
     html, body { height: 100%; font-family: sans-serif; }
-    body { background: url('https://source.unsplash.com/800x600/?crete,beach') center/cover no-repeat; position: relative; }
-    /* Responsive fallback: hide fancy decorations on narrow screens */
-    @media (max-width: 600px) {
-      .decorative { display: none; }
+    body { 
+      background: url('https://source.unsplash.com/800x600/?crete,beach') center/cover no-repeat;
+      position: relative;
+    }
+    /* Garland of emojis */
+    .garland {
+      position: absolute;
+      top: 10px;
+      width: 100%;
+      text-align: center;
+      font-size: 1.8rem;
+      z-index: 2;
+      pointer-events: none;
+      animation: float 4s ease-in-out infinite;
+    }
+    @keyframes float {
+      0%,100% { transform: translateY(0); }
+      50% { transform: translateY(8px); }
     }
     /* Fullscreen canvas for beach ball */
     canvas { position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; z-index: 1; }
     /* Centered countdown */
     .countdown-container {
-      position: relative; z-index: 2;
-      display: flex; flex-direction: column; align-items: center;
-      justify-content: center; height: 100vh; text-align: center;
-      background: rgba(0,0,0,0.4);
+      position: relative;
+      z-index: 3;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      height: 100vh;
+      text-align: center;
+      background: rgba(0,0,0,0.45);
       color: #fff;
       padding: 20px;
     }
-    .countdown-container h1 { font-size: 2rem; margin-bottom: 1rem; }
-    .time { font-size: 1.5rem; margin: 0.5rem 0; }
+    .countdown-container h1 {
+      font-size: 2.2rem;
+      margin-bottom: 0.5rem;
+    }
+    .emojis {
+      font-size: 1.5rem;
+      margin-bottom: 1rem;
+    }
+    .time {
+      font-size: 1.6rem;
+      margin: 0.4rem 0;
+    }
   </style>
 </head>
 <body>
-  <!-- Decorative elements hidden on mobile -->
-  <div class="decorative">
-    <!-- Sun, clouds, palms etc. could go here if desired -->
-  </div>
+  <div class="garland">🎈 🎉 🍹 🌺 🏖️ 🌊 🐚 🍦</div>
   <canvas id="bbcanvas"></canvas>
   <div class="countdown-container">
-    <h1>Countdown to Crete</h1>
+    <h1>Holiday Countdown to Crete</h1>
+    <div class="emojis">⛱️ 🏝️ 🌞</div>
     <div class="time" id="days">0 Days</div>
     <div class="time" id="hours">0 Hours</div>
     <div class="time" id="minutes">0 Minutes</div>
     <div class="time" id="seconds">0 Seconds</div>
   </div>
   <script>
-    // Simple countdown
+    // Countdown logic
     const target = new Date('2025-05-19T14:30:00');
-    function update() {
+    function updateCountdown() {
       const now = new Date();
       const diff = target - now;
       if (diff <= 0) {
-        document.querySelector('.countdown-container').innerHTML = '<h1>Enjoy Crete!</h1>';
+        document.querySelector('.countdown-container').innerHTML = '<h1>Enjoy Crete! 🎉</h1>';
         clearInterval(timer);
         return;
       }
-      const d=Math.floor(diff/86400000);
-      const h=Math.floor(diff%86400000/3600000);
-      const m=Math.floor(diff%3600000/60000);
-      const s=Math.floor(diff%60000/1000);
-      document.getElementById('days').textContent = d + ' Days';
-      document.getElementById('hours').textContent = h + ' Hours';
+      const d = Math.floor(diff / 86400000);
+      const h = Math.floor((diff % 86400000) / 3600000);
+      const m = Math.floor((diff % 3600000) / 60000);
+      const s = Math.floor((diff % 60000) / 1000);
+      document.getElementById('days').textContent    = d + ' Days';
+      document.getElementById('hours').textContent   = h + ' Hours';
       document.getElementById('minutes').textContent = m + ' Minutes';
       document.getElementById('seconds').textContent = s + ' Seconds';
     }
-    const timer = setInterval(update, 1000);
-    update();
+    const timer = setInterval(updateCountdown, 1000);
+    updateCountdown();
 
     // Beach ball canvas
     const canvas = document.getElementById('bbcanvas');
     const ctx = canvas.getContext('2d');
     let W, H;
-    function resize() { W=canvas.width=window.innerWidth; H=canvas.height=window.innerHeight; }
-    window.addEventListener('resize', resize);
-    resize();
-    const ball={x:W/2,y:H/2,vx:3,vy:2,r:Math.min(W,H)*0.06};
-    const g=0.2, dmp=0.8;
-    function draw(){
-      ctx.clearRect(0,0,W,H);
-      // ball
-      ctx.beginPath(); ctx.arc(ball.x,ball.y,ball.r,0,2*Math.PI);
-      ctx.fillStyle='#ffdd99'; ctx.fill();
+    function resizeCanvas() {
+      W = canvas.width = window.innerWidth;
+      H = canvas.height = window.innerHeight;
     }
-    function step(){
-      ball.vy+=g; ball.x+=ball.vx; ball.y+=ball.vy;
-      if(ball.x+ball.r>W||ball.x-ball.r<0) ball.vx*=-dmp;
-      if(ball.y+ball.r>H||ball.y-ball.r<0) ball.vy*=-dmp;
+    window.addEventListener('resize', resizeCanvas);
+    resizeCanvas();
+    const ball = { x: W/2, y: H/2, vx: 3, vy: 2, r: Math.min(W, H) * 0.06 };
+    const gravity = 0.2, damping = 0.8;
+    function drawBall() {
+      ctx.clearRect(0, 0, W, H);
+      // draw ball
+      ctx.beginPath();
+      ctx.arc(ball.x, ball.y, ball.r, 0, Math.PI*2);
+      ctx.fillStyle = '#ffdd99';
+      ctx.fill();
     }
-    function anim(){ step(); draw(); requestAnimationFrame(anim); }
-    anim();
-    canvas.addEventListener('touchstart',e=>{
-      const t=e.touches[0]; const dx=t.clientX-ball.x, dy=t.clientY-ball.y;
-      if(Math.hypot(dx,dy)<ball.r){ ball.vx=-dx*0.1; ball.vy=-dy*0.1; }
+    function updateBall() {
+      ball.vy += gravity;
+      ball.x += ball.vx;
+      ball.y += ball.vy;
+      if (ball.x + ball.r > W || ball.x - ball.r < 0) ball.vx *= -damping;
+      if (ball.y + ball.r > H || ball.y - ball.r < 0) ball.vy *= -damping;
+    }
+    function animate() {
+      updateBall();
+      drawBall();
+      requestAnimationFrame(animate);
+    }
+    animate();
+    canvas.addEventListener('touchstart', e => {
+      const t = e.touches[0];
+      const dx = t.clientX - ball.x;
+      const dy = t.clientY - ball.y;
+      if (Math.hypot(dx, dy) < ball.r) {
+        ball.vx = -dx * 0.1;
+        ball.vy = -dy * 0.1;
+      }
     });
   </script>
 </body>
